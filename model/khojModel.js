@@ -1,27 +1,23 @@
 const mongoose = require("mongoose");
-const payloadSchema = mongoose.Schema({
-  input_values: {
-    type: String,
-    required: true,
-  },
-  timestamps: {
-    timestamp: timestamps.createdAt,
-  },
-});
+
 // Schemas
-const khojSchema = new mongoose.Schema({
-  status: {
-    type: Boolean,
-    required: true,
-    default: false,
+const khojSchema = new mongoose.Schema(
+  {
+    status: {
+      type: String,
+      required: true,
+      default: "not found",
+    },
+
+    input_values: {
+      type: String,
+      required: true,
+    },
   },
-  user_id: {
-    type: String,
-    required: true,
-    unique,
-  },
-  payload: [payloadSchema],
-});
+  {
+    timestamps: true,
+  }
+);
 const Khoj = mongoose.model("Khoj", khojSchema);
 
 module.exports = Khoj;
