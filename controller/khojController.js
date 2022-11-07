@@ -9,13 +9,13 @@ const addKhoj = (req, res) => {
     const values = input_values.split(/[ , ]/);
     //console.log(search, values);
     let arr = [];
-    let found = "failed";
+    let found = false;
     for (let index = 0; index < values.length; index++) {
       const element = Number(values[index]);
       arr.push(element);
       // console.log(typeof element);
       if (element === search) {
-        found = "success";
+        found = true;
       }
     }
 
@@ -36,12 +36,10 @@ const addKhoj = (req, res) => {
       input_values: validInsertedFormet,
       timestamp: new Date().toJSON(),
     };
+
     newKhoj.payload = newObj;
-    if (found === "success") {
-      newKhoj.status = "success";
-    } else {
-      newKhoj.status = "not found";
-    }
+
+    newKhoj.status = "success";
 
     newKhoj.save();
   } catch (error) {
