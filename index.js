@@ -3,6 +3,8 @@ const app = express();
 var cors = require("cors");
 const connectDB = require("./database/connection");
 const Khoj = require("./model/khojModel");
+const { registerUser, loginUser } = require("./controller/userController");
+const addKhoj = require("./controller/khojController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -19,54 +21,10 @@ app.get("/api_end_point", async (req, res) => {
     });
   }
 });
-app.post("/Khoj_the_search_Page", (req, res) => {
-  try {
-    const newKhoj = new Khoj();
-    const { input_values, search_value } = req.body;
-    //console.log(input_values);
-    const search = Number(search_value);
-    const values = input_values.split(/[ , ]/);
-    //console.log(search, values);
-    let arr = [];
-    let found = "failed";
-    for (let index = 0; index < values.length; index++) {
-      const element = Number(values[index]);
-      arr.push(element);
-      // console.log(typeof element);
-      if (element === search) {
-        found = "success";
-      }
-    }
+app.post("/Khoj_the_search_Page", addKhoj);
 
-    res.json({ found });
-    const removeFalsy = arr.filter(Boolean);
-    console.log(removeFalsy.sort());
-
-    // console.log(myArr);
-    const removeFalsyValue = values.filter(Boolean);
-    //console.log(removeFalsyValue);
-    const sortedNumbers = [...new Float64Array(removeFalsyValue).sort()];
-
-    const arrToString = sortedNumbers.toString();
-
-    const validInsertedFormet = arrToString.replaceAll(",", ", ");
-    //console.log(validInsertedFormet);
-    const newObj = {
-      input_values: validInsertedFormet,
-      timestamp: new Date().toJSON(),
-    };
-    newKhoj.payload = newObj;
-    if (found === "success") {
-      newKhoj.status = "success";
-    } else {
-      newKhoj.status = "not found";
-    }
-
-    newKhoj.save();
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
+app.post("/register", registerUser);
+app.post("/login", loginUser);
 
 const PORT = 8005;
 
