@@ -17,9 +17,10 @@ app.post("/Khoj_the_search_Page", (req, res) => {
   try {
     const newKhoj = new Khoj();
     const { input_values, search_value } = req.body;
+    console.log(input_values);
     const search = Number(search_value);
     const values = input_values.split(/[ , ]/);
-    console.log(search, values);
+    //console.log(search, values);
     let found = "failed";
     for (let index = 0; index < values.length; index++) {
       const element = values[index];
@@ -30,8 +31,10 @@ app.post("/Khoj_the_search_Page", (req, res) => {
     }
 
     res.json({ found });
-    const sortedValues = values.toString();
-    newKhoj.input_values = sortedValues;
+    // const sortedValues = values.toString();
+    // const okvalues = sortedValues.split(/[,]/);
+    //console.log(okvalues);
+    newKhoj.input_values = input_values;
     if (found === "success") {
       newKhoj.status = "success";
     } else {
