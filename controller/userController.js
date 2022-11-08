@@ -1,7 +1,7 @@
 const User = require("../model/UserModel");
 const { hashPassword, comparePasswords } = require("../utils/hashPassword");
 const generateAuthToken = require("../utils/generateAuthToken");
-const registerUser = async (req, res) => {
+const registerUser = async (req, res, next) => {
   try {
     const { name, lastName, email, password } = req.body;
     if (!(name && lastName && email && password)) {
@@ -19,6 +19,7 @@ const registerUser = async (req, res) => {
         email: email.toLowerCase(),
         password: hashedPassword,
         payload: [],
+        status: "success",
       });
       res
         .cookie(
@@ -48,19 +49,19 @@ const registerUser = async (req, res) => {
         });
     }
   } catch (err) {
-    res.send(err); // need tp implement for error show
+    next(err); // need tp implement for error show
   }
 };
 
 // login
-const loginUser = async (req, res) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!(email && password)) {
       return res.status(400).send("All inputs are required");
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).orFail();
     if (user && comparePasswords(password, user.password)) {
       let cookieParams = {
         httpOnly: true,
@@ -87,12 +88,12 @@ const loginUser = async (req, res) => {
       return res.status(401).send("wrong credentials");
     }
   } catch (err) {
-    res.send(err); // need tp implement for error show
+    next(err); // need tp implement for error show
   }
 };
 
 const allUser = async (req, res) => {
-  let allUsers = await User.find();
+  let allUsers = await User.find().populate("payload");
   res.json(allUsers);
 };
 

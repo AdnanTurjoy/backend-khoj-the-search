@@ -14,10 +14,8 @@ const addKhoj = require("./controller/khojController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-app.get("/Khoj_the_search_Page", (req, res) => {
-  res.sendFile(__dirname + "/Khoj_the_search_Page.html");
-});
-app.get("/api_end_point", async (req, res) => {
+
+app.get("/payload", async (req, res) => {
   try {
     const khoj = await Khoj.find();
     res.status(200).send({ khoj });
@@ -32,12 +30,29 @@ app.post("/Khoj_the_search_Page", addKhoj);
 app.post("/register", registerUser);
 app.post("/login", loginUser);
 
-app.get("/users", allUser);
+app.get("/api_end_point", allUser);
 app.get("/users/:email", getFind);
 app.get("/users/:email/khoj", getAllKhoj);
 
 const PORT = 8005;
-
+app.use((error, req, res, next) => {
+  if (process.env.NODE_ENV === "development") {
+    console.error(error);
+  }
+  next(error);
+});
+app.use((error, req, res, next) => {
+  if (process.env.NODE_ENV === "development") {
+    res.status(500).json({
+      message: error.message,
+      stack: error.stack,
+    });
+  } else {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 app.listen(PORT, async () => {
   console.log(`Server is Running at http://localhost:${PORT}`);
   await connectDB();

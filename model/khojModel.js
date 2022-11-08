@@ -8,11 +8,7 @@ const khojSchema = new mongoose.Schema({
     required: true,
     ref: "User",
   },
-  status: {
-    type: String,
-    required: true,
-    default: "not found",
-  },
+
   input_values: {
     type: String,
     required: true,
