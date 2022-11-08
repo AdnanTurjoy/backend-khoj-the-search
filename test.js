@@ -1,102 +1,94 @@
-const Order = require("../models/OrderModel");
-const Product = require("../models/ProductModel");
-const ObjectId = require("mongodb").ObjectId;
+const { validationResult } = require("express-validator");
 
-const getUserOrders = async (req, res, next) => {
-  try {
-    const orders = await Order.find({ user: ObjectId(req.user._id) });
-    res.send(orders);
-  } catch (error) {
-    next(error);
-  }
-};
+const HttpError = require("../models/http-error");
+const User = require("../models/user");
 
-const getOrder = async (req, res, next) => {
+const getUsers = async (req, res, next) => {
+  let users;
   try {
-    const order = await Order.findById(req.params.id)
-      .populate("user", "-password -isAdmin -_id -__v -createdAt -updatedAt")
-      .orFail();
-    res.send(order);
+    users = await User.find({}, "-password");
   } catch (err) {
-    next(err);
+    const error = new HttpError(
+      "Fetching users failed, please try again later.",
+      500
+    );
+    return next(error);
   }
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
-const createOrder = async (req, res, next) => {
+const signup = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+  const { name, email, password } = req.body;
+
+  let existingUser;
   try {
-    const { cartItems, orderTotal, paymentMethod } = req.body;
-    if (!cartItems || !orderTotal || !paymentMethod) {
-      return res.status(400).send("All inputs are required");
-    }
-
-    let ids = cartItems.map((item) => {
-      return item.productID;
-    });
-    let qty = cartItems.map((item) => {
-      return Number(item.quantity);
-    });
-
-    await Product.find({ _id: { $in: ids } }).then((products) => {
-      products.forEach(function (product, idx) {
-        product.sales += qty[idx];
-        product.save();
-      });
-    });
-
-    const order = new Order({
-      user: ObjectId(req.user._id),
-      orderTotal: orderTotal,
-      cartItems: cartItems,
-      paymentMethod: paymentMethod,
-    });
-    const createdOrder = await order.save();
-    res.status(201).send(createdOrder);
+    existingUser = await User.findOne({ email: email });
   } catch (err) {
-    next(err);
+    const error = new HttpError(
+      "Signing up failed, please try again later.",
+      500
+    );
+    return next(error);
   }
-};
 
-const updateOrderToPaid = async (req, res, next) => {
+  if (existingUser) {
+    const error = new HttpError(
+      "User exists already, please login instead.",
+      422
+    );
+    return next(error);
+  }
+
+  const createdUser = new User({
+    name,
+    email,
+    image: "https://live.staticflickr.com/7631/26849088292_36fc52ee90_b.jpg",
+    password,
+    places: [],
+  });
+
   try {
-    const order = await Order.findById(req.params.id).orFail();
-    order.isPaid = true;
-    order.paidAt = Date.now();
-
-    const updatedOrder = await order.save();
-    res.send(updatedOrder);
+    await createdUser.save();
   } catch (err) {
-    next(err);
+    const error = new HttpError("Signing up failed, please try again.", 500);
+    return next(error);
   }
+
+  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-const updateOrderToDelivered = async (req, res, next) => {
+const login = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  let existingUser;
+
   try {
-    const order = await Order.findById(req.params.id).orFail();
-    order.isDelivered = true;
-    order.deliveredAt = Date.now();
-    const updatedOrder = await order.save();
-    res.send(updatedOrder);
+    existingUser = await User.findOne({ email: email });
   } catch (err) {
-    next(err);
+    const error = new HttpError(
+      "Logging in failed, please try again later.",
+      500
+    );
+    return next(error);
   }
+
+  if (!existingUser || existingUser.password !== password) {
+    const error = new HttpError(
+      "Invalid credentials, could not log you in.",
+      401
+    );
+    return next(error);
+  }
+
+  res.json({ message: "Logged in!" });
 };
 
-const getOrders = async (req, res, next) => {
-  try {
-    const orders = await Order.find({})
-      .populate("user", "-password")
-      .sort({ paymentMethod: "desc" });
-    res.send(orders);
-  } catch (err) {
-    next(err);
-  }
-};
-
-module.exports = {
-  getUserOrders,
-  getOrder,
-  createOrder,
-  updateOrderToPaid,
-  updateOrderToDelivered,
-  getOrders,
-};
+exports.getUsers = getUsers;
+exports.signup = signup;
+exports.login = login;

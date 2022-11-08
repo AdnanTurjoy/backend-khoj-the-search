@@ -3,29 +3,24 @@ const User = require("./UserModel");
 
 // Schemas
 const khojSchema = new mongoose.Schema({
-  user_id: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
-
-    ref: User,
+    required: true,
+    ref: "User",
   },
   status: {
     type: String,
     required: true,
     default: "not found",
   },
-
-  payload: [
-    {
-      input_values: {
-        type: String,
-        required: true,
-      },
-      timestamp: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  input_values: {
+    type: String,
+    required: true,
+  },
+  timestamp: {
+    type: String,
+    required: true,
+  },
 });
 const Khoj = mongoose.model("Khoj", khojSchema);
 

@@ -3,7 +3,13 @@ const app = express();
 var cors = require("cors");
 const connectDB = require("./database/connection");
 const Khoj = require("./model/khojModel");
-const { registerUser, loginUser } = require("./controller/userController");
+const {
+  registerUser,
+  loginUser,
+  getAllKhoj,
+  allUser,
+  getFind,
+} = require("./controller/userController");
 const addKhoj = require("./controller/khojController");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,6 +31,10 @@ app.post("/Khoj_the_search_Page", addKhoj);
 
 app.post("/register", registerUser);
 app.post("/login", loginUser);
+
+app.get("/users", allUser);
+app.get("/users/:email", getFind);
+app.get("/users/:email/khoj", getAllKhoj);
 
 const PORT = 8005;
 

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Khoj = require("./khojModel");
 
 const userSchema = mongoose.Schema(
   {
@@ -19,6 +20,13 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    payload: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Khoj",
+      },
+    ],
   },
   {
     timestamps: true,

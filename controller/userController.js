@@ -18,6 +18,7 @@ const registerUser = async (req, res) => {
         lastName,
         email: email.toLowerCase(),
         password: hashedPassword,
+        payload: [],
       });
       res
         .cookie(
@@ -90,4 +91,22 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const allUser = async (req, res) => {
+  let allUsers = await User.find();
+  res.json(allUsers);
+};
+
+const getFind = async (req, res) => {
+  let found = await User.find({
+    email: req.params.email,
+  });
+  res.json(found);
+};
+const getAllKhoj = async (req, res) => {
+  let foundKhoj = await User.find({
+    email: req.params.email,
+  }).populate("payload");
+  res.json(foundKhoj);
+};
+
+module.exports = { registerUser, loginUser, getAllKhoj, allUser, getFind };
