@@ -34,7 +34,6 @@ app.get("/api_end_point", allUser);
 app.get("/users/:email", getFind);
 app.get("/users/:email/khoj", getAllKhoj);
 
-const PORT = 8005;
 app.use((error, req, res, next) => {
   if (process.env.NODE_ENV === "development") {
     console.error(error);
@@ -53,7 +52,7 @@ app.use((error, req, res, next) => {
     });
   }
 });
-app.listen(PORT, async () => {
-  console.log(`Server is Running at http://localhost:${PORT}`);
+app.listen(process.env.PORT || 8005, async () => {
+  console.log("Server is Running");
   await connectDB();
 });
