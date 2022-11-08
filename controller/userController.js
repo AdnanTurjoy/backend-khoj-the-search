@@ -8,6 +8,8 @@ const registerUser = async (req, res, next) => {
       return res.status(400).send("All inputs are required");
     }
 
+
+    
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).send("user exists");
