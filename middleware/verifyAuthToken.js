@@ -18,4 +18,4 @@ const verifyIsLoggedIn = (req, res, next) => {
   }
 };
 
-module.exports = { verifyIsLoggedIn, verifyIsAdmin };
+module.exports = { verifyIsLoggedIn };

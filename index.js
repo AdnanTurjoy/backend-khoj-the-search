@@ -11,6 +11,7 @@ const {
   getFind,
 } = require("./controller/userController");
 const addKhoj = require("./controller/khojController");
+const { verifyIsLoggedIn } = require("./middleware/verifyAuthToken");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
@@ -28,7 +29,7 @@ app.get("/payload", async (req, res) => {
 app.post("/Khoj_the_search_Page", addKhoj);
 
 app.post("/register", registerUser);
-app.post("/login", loginUser);
+app.post("/login", verifyIsLoggedIn, loginUser);
 
 app.get("/api_end_point", allUser);
 app.get("/users/:email", getFind);
